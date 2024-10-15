@@ -10,7 +10,7 @@ import com.scalefocus.blog_api.repository.ElasticBlogRepository;
 import com.scalefocus.blog_api.repository.TokenRepository;
 import com.scalefocus.blog_api.repository.UserRepository;
 import com.scalefocus.blog_api.request.*;
-import com.scalefocus.blog_api.response.SimplifiedBlogResponse;
+import com.scalefocus.blog_api.response.SimplifiedBlogResponsePagination;
 import com.scalefocus.blog_api.response.TokenResponse;
 import com.scalefocus.blog_api.response.UserBlogResponse;
 import com.scalefocus.blog_api.service.impl.UserServiceImpl;
@@ -222,18 +222,17 @@ class BlogApiApplicationTests extends AbstractMysqlContainer {
 
     @Test
     public void testGettingSimplifiedBlogResponse() {
-        String simplifiedBlogUrl = baseUrl + "/blogs/simplified";
+        String simplifiedBlogUrl = baseUrl + "/blogs/simplified?pageNumber={pageNumber}&pageSize={pageSize}";
 
-        List<SimplifiedBlogResponse> simplifiedBlogResponses = restTemplate.exchange(
+        SimplifiedBlogResponsePagination simplifiedBlogResponses = restTemplate.exchange(
                 simplifiedBlogUrl,
                 HttpMethod.GET,
                 new HttpEntity<>(null, headers),
-                new ParameterizedTypeReference<List<SimplifiedBlogResponse>>() {
-                }
-        ).getBody();
+                SimplifiedBlogResponsePagination.class,1,1)
+                .getBody();
 
         assertNotNull(simplifiedBlogResponses);
-        assertThat(simplifiedBlogResponses.size()).isGreaterThanOrEqualTo(1);
+        assertThat(simplifiedBlogResponses.getSimplifiedBlogResponseList().size()).isGreaterThanOrEqualTo(1);
         assertThat(blogRepository.findAll().size()).isGreaterThanOrEqualTo(1);
 
     }

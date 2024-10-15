@@ -8,6 +8,7 @@ import com.scalefocus.blog_api.request.BlogCreationRequest;
 import com.scalefocus.blog_api.request.BlogUpdateRequest;
 import com.scalefocus.blog_api.request.TagAddRequest;
 import com.scalefocus.blog_api.response.SimplifiedBlogResponse;
+import com.scalefocus.blog_api.response.SimplifiedBlogResponsePagination;
 import com.scalefocus.blog_api.response.UserBlogResponse;
 import com.scalefocus.blog_api.service.BlogService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,7 @@ public class BlogControllerTest {
     private BlogUpdateRequest blogUpdateRequest;
     private TagAddRequest tagAddRequest;
     private TagDto tagAddDto;
+    private SimplifiedBlogResponsePagination responsePagination;
     private List<SimplifiedBlogResponse> simplifiedBlogResponseList;
     private SimplifiedBlogResponse simplifiedBlogResponse;
     private BlogCreationRequest blogCreationReguest;
@@ -72,6 +74,8 @@ public class BlogControllerTest {
         blogCreationReguest = new BlogCreationRequest(blogDto.title(), blogDto.text(), tags, user.getId());
         simplifiedBlogResponse = new SimplifiedBlogResponse(blogDto.title(), blogDto.text());
         simplifiedBlogResponseList = List.of(simplifiedBlogResponse);
+        responsePagination=new SimplifiedBlogResponsePagination(simplifiedBlogResponseList,1,1,
+                1,1);
 
         UserBlogResponse userBlogResponse = podamFactory.manufacturePojo(UserBlogResponse.class);
 
@@ -80,7 +84,7 @@ public class BlogControllerTest {
         doReturn(blogDto).when(blogService).addTag(anyLong(), any(TagAddRequest.class));
         doReturn(blogDto).when(blogService).removeTag(anyLong(), anyLong());
         doReturn(blogDtoList).when(blogService).getBlogsByTagName(anyString());
-        doReturn(simplifiedBlogResponseList).when(blogService).getSimplifiedBlogs();
+        doReturn(responsePagination).when(blogService).getSimplifiedBlogs(anyInt(),anyInt());
         doReturn(userBlogResponse).when(blogService).getUserBlogs(anyString());
     }
 
@@ -163,7 +167,7 @@ public class BlogControllerTest {
 
     @Test
     public void testGettingSimplifiedBlogs() {
-        ResponseEntity<List<SimplifiedBlogResponse>> simplifiedBlogs = blogController.getSimplifiedBlogs();
+        ResponseEntity<SimplifiedBlogResponsePagination> simplifiedBlogs = blogController.getSimplifiedBlogs(1, 1);
 
         assertThat(simplifiedBlogs.getBody()).isNotNull();
         assertEquals(simplifiedBlogs.getStatusCode(), HttpStatusCode.valueOf(200));
