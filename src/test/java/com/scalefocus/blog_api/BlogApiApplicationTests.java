@@ -6,6 +6,7 @@ import com.scalefocus.blog_api.entity.Tag;
 import com.scalefocus.blog_api.entity.Token;
 import com.scalefocus.blog_api.entity.User;
 import com.scalefocus.blog_api.repository.BlogRepository;
+import com.scalefocus.blog_api.repository.ElasticBlogRepository;
 import com.scalefocus.blog_api.repository.TokenRepository;
 import com.scalefocus.blog_api.repository.UserRepository;
 import com.scalefocus.blog_api.request.*;
@@ -56,6 +57,9 @@ class BlogApiApplicationTests extends AbstractMysqlContainer {
 
     @Autowired
     private TokenRepository tokenRepository;
+
+    @Autowired
+    private ElasticBlogRepository elasticBlogRepository;
 
     private static TestRestTemplate restTemplate;
     private User user;
