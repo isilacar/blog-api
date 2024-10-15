@@ -148,12 +148,7 @@ public class BlogController {
             responseCode = "200",
             description = "HTTP Status 200 SUCCESS"
     )
-    /*
-     private long totalValue;
-    private long totalPages;
-    private long currentPage;
-    private long viewedValueCount;
-     */
+
     /**
      *
      * @param pageNumber refers to which page you want to view
