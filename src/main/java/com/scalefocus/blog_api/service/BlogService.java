@@ -2,6 +2,7 @@ package com.scalefocus.blog_api.service;
 
 
 import com.scalefocus.blog_api.dto.BlogDto;
+import com.scalefocus.blog_api.entity.ElasticBlogDocument;
 import com.scalefocus.blog_api.request.BlogCreationRequest;
 import com.scalefocus.blog_api.request.BlogUpdateRequest;
 import com.scalefocus.blog_api.request.TagAddRequest;
@@ -29,4 +30,6 @@ public interface BlogService {
     List<SimplifiedBlogResponse> getSimplifiedBlogs();
 
     void deleteUserBlogByUsername(Long blogId, String username);
+
+    List<ElasticBlogDocument> searchByKeyword (String keyword);
 }

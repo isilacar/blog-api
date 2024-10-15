@@ -8,9 +8,12 @@ services:
     networks:
       - blog-network
     environment:
-      - spring.datasource.url=jdbc:mysql://mysql-db:3306/blogdb
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/blogdb
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
     depends_on:
       mysql-db:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
 
   mysql-db:
@@ -30,8 +33,44 @@ services:
     volumes:
       - mysql-data-volume:/var/lib/mysql
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.24
+    container_name: elasticsearch
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - blog-network
+    volumes:
+      - elasticsearch-data-volume:/usr/share/elasticsearch/data
+    environment:
+      - xpack.security.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx1024m"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --silent --fail http://localhost:9200" ]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.24
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    networks:
+      - blog-network
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
 volumes:
   mysql-data-volume:
+  elasticsearch-data-volume:
 
 networks:
   blog-network:

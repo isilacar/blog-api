@@ -2,6 +2,7 @@ package com.scalefocus.blog_api.controller;
 
 
 import com.scalefocus.blog_api.dto.BlogDto;
+import com.scalefocus.blog_api.entity.ElasticBlogDocument;
 import com.scalefocus.blog_api.request.BlogCreationRequest;
 import com.scalefocus.blog_api.request.BlogUpdateRequest;
 import com.scalefocus.blog_api.request.TagAddRequest;
@@ -172,6 +173,19 @@ public class BlogController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get Blogs By Keyword REST API",
+            description = "Get Blogs By Keyword Rest API is used to get specific blogs according to text,title,tags which are matching with keyword"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status 200 SUCCESS"
+    )
+    @GetMapping("/keywordSearching")
+    public ResponseEntity<List<ElasticBlogDocument>> getBlogsByKeyword(@RequestParam String keyword) {
+        return new ResponseEntity<>(blogService.searchByKeyword(keyword)
+                , HttpStatus.OK);
+    }
 }
 
 

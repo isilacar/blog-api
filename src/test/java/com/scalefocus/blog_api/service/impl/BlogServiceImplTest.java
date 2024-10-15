@@ -8,6 +8,7 @@ import com.scalefocus.blog_api.entity.User;
 import com.scalefocus.blog_api.exception.ResourceNotFound;
 import com.scalefocus.blog_api.mapper.BlogMapper;
 import com.scalefocus.blog_api.repository.BlogRepository;
+import com.scalefocus.blog_api.repository.ElasticBlogRepository;
 import com.scalefocus.blog_api.repository.TagRepository;
 import com.scalefocus.blog_api.repository.UserRepository;
 import com.scalefocus.blog_api.request.BlogCreationRequest;
@@ -47,6 +48,9 @@ public class BlogServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+   private ElasticBlogRepository elasticBlogRepository;
 
     @InjectMocks
     private BlogServiceImpl blogServiceImpl;
