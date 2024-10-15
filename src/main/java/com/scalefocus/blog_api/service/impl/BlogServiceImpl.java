@@ -2,12 +2,11 @@ package com.scalefocus.blog_api.service.impl;
 
 
 import com.scalefocus.blog_api.dto.BlogDto;
-import com.scalefocus.blog_api.entity.Blog;
-import com.scalefocus.blog_api.entity.Tag;
-import com.scalefocus.blog_api.entity.User;
+import com.scalefocus.blog_api.entity.*;
 import com.scalefocus.blog_api.exception.ResourceNotFound;
 import com.scalefocus.blog_api.mapper.BlogMapper;
 import com.scalefocus.blog_api.repository.BlogRepository;
+import com.scalefocus.blog_api.repository.ElasticBlogRepository;
 import com.scalefocus.blog_api.repository.TagRepository;
 import com.scalefocus.blog_api.repository.UserRepository;
 import com.scalefocus.blog_api.request.BlogCreationRequest;
@@ -15,11 +14,14 @@ import com.scalefocus.blog_api.request.BlogUpdateRequest;
 import com.scalefocus.blog_api.request.TagAddRequest;
 import com.scalefocus.blog_api.response.BlogResponse;
 import com.scalefocus.blog_api.response.SimplifiedBlogResponse;
+import com.scalefocus.blog_api.response.SimplifiedBlogResponsePagination;
 import com.scalefocus.blog_api.response.UserBlogResponse;
 import com.scalefocus.blog_api.service.BlogService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,6 +36,7 @@ public class BlogServiceImpl implements BlogService {
     private final BlogMapper blogMapper;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
+    private final ElasticBlogRepository elasticBlogRepository;
 
     @Override
     public BlogDto createBlog(BlogCreationRequest blogCreationRequest) {
@@ -46,6 +49,17 @@ public class BlogServiceImpl implements BlogService {
         logger.info("User with id '{}' has founded", blogCreationRequest.getUserId());
         Blog blog = blogMapper.getBlog(blogCreationRequest, user);
         Blog savedBlog = blogRepository.save(blog);
+
+        ElasticBlogDocument elasticBlogDocument = new ElasticBlogDocument();
+        elasticBlogDocument.setId(savedBlog.getId());
+        elasticBlogDocument.setTitle(savedBlog.getTitle());
+        elasticBlogDocument.setText(savedBlog.getText());
+        elasticBlogDocument.setUserId(user.getId());
+        elasticBlogDocument.setTags(blog.getTags().stream()
+                .map(tag -> new ElasticTag(tag.getId(), tag.getName())).toList());
+
+        elasticBlogRepository.save(elasticBlogDocument);
+
         logger.info("Blog has created successfully by the user id '{}'", user.getId());
         return blogMapper.mapToBlogDto(savedBlog);
     }
@@ -119,11 +133,20 @@ public class BlogServiceImpl implements BlogService {
         return blogMapper.mapToBlogDtoList(blogs);
     }
 
+
     @Override
-    public List<SimplifiedBlogResponse> getSimplifiedBlogs() {
-        List<Blog> blogs = blogRepository.findAll();
-        logger.info("Getting all simplified blogs");
-        return blogs.stream().map(blog -> new SimplifiedBlogResponse(blog.getTitle(), blog.getText())).toList();
+    public SimplifiedBlogResponsePagination getSimplifiedBlogs(int pageNumber, int pageSize) {
+        Page<Blog> blogRepositoryPagination = blogRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        logger.info("Getting all simplified blogs with pagination");
+
+        SimplifiedBlogResponsePagination responsePagination = new SimplifiedBlogResponsePagination();
+        responsePagination.setSimplifiedBlogResponseList(blogRepositoryPagination.getContent().stream().map(data -> new SimplifiedBlogResponse(data.getTitle(), data.getText())).toList());
+        responsePagination.setTotalValue(blogRepositoryPagination.getTotalElements());
+        responsePagination.setTotalPages(blogRepositoryPagination.getTotalPages());
+        responsePagination.setCurrentPage(blogRepositoryPagination.getPageable().getPageNumber());
+        responsePagination.setViewedValueCount(blogRepositoryPagination.getPageable().getPageSize());
+
+        return responsePagination;
     }
 
     @Override
@@ -144,7 +167,13 @@ public class BlogServiceImpl implements BlogService {
         user.getBlogList().remove(blog);
         userRepository.save(user);
         blogRepository.delete(blog);
+        elasticBlogRepository.deleteById(blog.getId());
         logger.info("Blog with id '{}' has deleted successfully which belongs to user with id '{}'", blogId, user.getId());
+    }
+
+    @Override
+    public List<ElasticBlogDocument> searchByKeyword(String keyword) {
+        return elasticBlogRepository.searchByKeyword(keyword);
     }
 
     public UserBlogResponse getUserBlogs(String username) {
