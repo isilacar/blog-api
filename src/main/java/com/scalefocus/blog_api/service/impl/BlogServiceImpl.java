@@ -14,11 +14,14 @@ import com.scalefocus.blog_api.request.BlogUpdateRequest;
 import com.scalefocus.blog_api.request.TagAddRequest;
 import com.scalefocus.blog_api.response.BlogResponse;
 import com.scalefocus.blog_api.response.SimplifiedBlogResponse;
+import com.scalefocus.blog_api.response.SimplifiedBlogResponsePagination;
 import com.scalefocus.blog_api.response.UserBlogResponse;
 import com.scalefocus.blog_api.service.BlogService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -130,11 +133,20 @@ public class BlogServiceImpl implements BlogService {
         return blogMapper.mapToBlogDtoList(blogs);
     }
 
+
     @Override
-    public List<SimplifiedBlogResponse> getSimplifiedBlogs() {
-        List<Blog> blogs = blogRepository.findAll();
-        logger.info("Getting all simplified blogs");
-        return blogs.stream().map(blog -> new SimplifiedBlogResponse(blog.getTitle(), blog.getText())).toList();
+    public SimplifiedBlogResponsePagination getSimplifiedBlogs(int pageNumber, int pageSize) {
+        Page<Blog> blogRepositoryPagination = blogRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        logger.info("Getting all simplified blogs with pagination");
+
+        SimplifiedBlogResponsePagination responsePagination = new SimplifiedBlogResponsePagination();
+        responsePagination.setSimplifiedBlogResponseList(blogRepositoryPagination.getContent().stream().map(data -> new SimplifiedBlogResponse(data.getTitle(), data.getText())).toList());
+        responsePagination.setTotalValue(blogRepositoryPagination.getTotalElements());
+        responsePagination.setTotalPages(blogRepositoryPagination.getTotalPages());
+        responsePagination.setCurrentPage(blogRepositoryPagination.getPageable().getPageNumber());
+        responsePagination.setViewedValueCount(blogRepositoryPagination.getPageable().getPageSize());
+
+        return responsePagination;
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.scalefocus.blog_api.entity.ElasticBlogDocument;
 import com.scalefocus.blog_api.request.BlogCreationRequest;
 import com.scalefocus.blog_api.request.BlogUpdateRequest;
 import com.scalefocus.blog_api.request.TagAddRequest;
-import com.scalefocus.blog_api.response.SimplifiedBlogResponse;
+import com.scalefocus.blog_api.response.SimplifiedBlogResponsePagination;
 import com.scalefocus.blog_api.response.UserBlogResponse;
 import com.scalefocus.blog_api.service.BlogService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +34,6 @@ public class BlogController {
 
     private final BlogService blogService;
 
-    //authenticated users can create blogs
     @Operation(
             summary = "Create Blog REST API",
             description = "Create Blog REST API is used to save blog in a database"
@@ -43,8 +42,8 @@ public class BlogController {
             responseCode = "201",
             description = "HTTP Status 201 CREATED"
     )
-    //Users can add blog with tagNames
     @PostMapping
+    //authenticated users can create blogs
     public ResponseEntity<BlogDto> createBlog(@RequestBody BlogCreationRequest blogCreationRequest) {
         logger.info("User with id '{}' is creating a new blog", blogCreationRequest.getUserId());
         return new ResponseEntity<>(blogService.createBlog(blogCreationRequest), HttpStatus.CREATED);
@@ -141,7 +140,7 @@ public class BlogController {
         return new ResponseEntity<>(blogService.getBlogsByTagName(tagName),HttpStatus.OK);
     }
 
-    //users can get simplified blog list
+
     @Operation(
             summary = "Get Simplified Blogs REST API",
             description = "Get simplified Blogs REST API is used to get simplified blogs which has title and text attributes from the database"
@@ -150,11 +149,22 @@ public class BlogController {
             responseCode = "200",
             description = "HTTP Status 200 SUCCESS"
     )
+
+    /**
+     *
+     * @param pageNumber refers to which page you want to view
+     * @param pageSize refers to the number of data that will appear on the page
+     * @return SimplifiedBlogResponsePagination object which includes the data with blog title and text,
+     *          total number blogs, total count of the pages, current page number and number of values
+     *          in a page
+     */
+    //users can get simplified blog list
     @GetMapping("/simplified")
-    public ResponseEntity<List<SimplifiedBlogResponse>> getSimplifiedBlogs(){
-        logger.info("Getting simplified blogs");
-        return new ResponseEntity<>(blogService.getSimplifiedBlogs(),HttpStatus.OK);
+    public ResponseEntity<SimplifiedBlogResponsePagination> getSimplifiedBlogs(@RequestParam int pageNumber,@RequestParam int pageSize){
+        logger.info("Getting simplified blogs with pagination");
+        return new ResponseEntity<>(blogService.getSimplifiedBlogs(pageNumber,pageSize),HttpStatus.OK);
     }
+
 
     @Operation(
             summary = "Delete User Blog By Username REST API",
