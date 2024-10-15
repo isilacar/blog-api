@@ -14,13 +14,16 @@ import com.scalefocus.blog_api.repository.UserRepository;
 import com.scalefocus.blog_api.request.BlogCreationRequest;
 import com.scalefocus.blog_api.request.BlogUpdateRequest;
 import com.scalefocus.blog_api.request.TagAddRequest;
-import com.scalefocus.blog_api.response.SimplifiedBlogResponse;
+import com.scalefocus.blog_api.response.SimplifiedBlogResponsePagination;
 import com.scalefocus.blog_api.response.UserBlogResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,7 +53,7 @@ public class BlogServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
-   private ElasticBlogRepository elasticBlogRepository;
+    private ElasticBlogRepository elasticBlogRepository;
 
     @InjectMocks
     private BlogServiceImpl blogServiceImpl;
@@ -67,11 +70,12 @@ public class BlogServiceImplTest {
     private BlogCreationRequest blogCreationRequest;
     private User user;
     List<User> users;
+    private Page<Blog> blogPage;
+
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-
         user = User.builder()
                 .id(1L)
                 .username("test user")
@@ -124,6 +128,7 @@ public class BlogServiceImplTest {
         Blog newBlog = new Blog(6L, "test title", "test,text", tags, user);
         user.getBlogList().add(newBlog);
         users.add(user);
+        blogPage = new PageImpl<>(blogList, PageRequest.of(0, 10), blogs.size());
 
         doReturn(blog).when(blogMapper).mapToBlog(any(BlogDto.class));
         doReturn(blogDto).when(blogMapper).mapToBlogDto(any(Blog.class));
@@ -252,13 +257,13 @@ public class BlogServiceImplTest {
 
     @Test
     public void testGettingSimplifiedBlogs() {
-        doReturn(blogList).when(blogRepository).findAll();
+        doReturn(blogPage).when(blogRepository).findAll(PageRequest.of(1, 1));
 
-        List<SimplifiedBlogResponse> simplifiedBlogs = blogServiceImpl.getSimplifiedBlogs();
+        SimplifiedBlogResponsePagination simplifiedBlogs = blogServiceImpl.getSimplifiedBlogs(1, 1);
 
         assertThat(simplifiedBlogs).isNotNull();
-        assertFalse(simplifiedBlogs.isEmpty());
-        assertThat(simplifiedBlogs.size()).isGreaterThanOrEqualTo(1);
+        assertFalse(simplifiedBlogs.getSimplifiedBlogResponseList().isEmpty());
+        assertThat(simplifiedBlogs.getSimplifiedBlogResponseList().size()).isGreaterThanOrEqualTo(1);
 
     }
 
