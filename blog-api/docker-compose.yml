@@ -1,22 +1,46 @@
 services:
-  app:
-    build: .
-    container_name: blog-api
+  user-service:
+    build:
+      context: /user-service
+      dockerfile: Dockerfile
+    container_name: user-service
     restart: on-failure
     ports:
-      - "8081:8080"
+      - "8081:8081"
     networks:
       - blog-network
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/blogdb
-      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      SPRING.DATASOURCE.URL: jdbc:mysql://mysql:3306/userdb
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eurekaserver:8761/eureka/
     depends_on:
-      mysql-db:
+      mysql:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+
+  blog-service:
+    build:
+      context: /blog-service
+      dockerfile: Dockerfile
+    container_name: blog-service
+    restart: on-failure
+    ports:
+      - "8082:8082"
+    networks:
+      - blog-network
+    environment:
+      SPRING.DATASOURCE.URL: jdbc:mysql://mysql:3306/blogdb
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eurekaserver:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eurekaserver:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
 
-  mysql-db:
+  mysql:
     image: mysql:8.1
     container_name: mysql
     ports:
@@ -25,19 +49,19 @@ services:
       - blog-network
     environment:
       MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: blogdb
     healthcheck:
       test: [ "CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD' ]
       timeout: 20s
       retries: 10
     volumes:
+      - ./user-service/src/main/resources/scripts/mysql.sql:/docker-entrypoint-initdb.d/mysql.sql
       - mysql-data-volume:/var/lib/mysql
 
   sonarqube:
     image: sonarqube:9-community
     container_name: sonarqube
     depends_on:
-      mysql-db:
+      mysql:
         condition: service_healthy
     ports:
       - "9000:9000"
@@ -53,6 +77,7 @@ services:
       - sonarqube_logs:/opt/sonarqube/logs
       - sonarqube_temp:/opt/sonarqube/temp
       - sonarqube_config:/opt/sonarqube/conf
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.24
     container_name: elasticsearch
@@ -88,6 +113,23 @@ services:
       elasticsearch:
         condition: service_healthy
 
+  eurekaserver:
+    build:
+      context: /eureka-service
+      dockerfile: Dockerfile
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8761" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: on-failure
+    networks:
+      - blog-network
+
 volumes:
   mysql-data-volume:
   sonarqube_data:
@@ -99,5 +141,6 @@ volumes:
 
 networks:
   blog-network:
+    driver: bridge
 
 
