@@ -39,9 +39,9 @@ public class Blog {
     @Schema(
             description = "Blog Entity Tag Information"
     )
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE},fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(name = "blog_tags",
-            joinColumns ={ @JoinColumn(name = "blog_id", referencedColumnName = "id")},
+            joinColumns = {@JoinColumn(name = "blog_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "tag_id", referencedColumnName = "id")}
     )
     private Set<Tag> tags = new HashSet<>();

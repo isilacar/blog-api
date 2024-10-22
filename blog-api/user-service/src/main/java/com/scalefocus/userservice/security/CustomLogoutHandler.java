@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CustomLogoutHandler implements LogoutHandler {
 
-    private static final Logger logger= LogManager.getLogger(CustomLogoutHandler.class);
+    private static final Logger logger = LogManager.getLogger(CustomLogoutHandler.class);
 
     private final TokenRepository tokenRepository;
 

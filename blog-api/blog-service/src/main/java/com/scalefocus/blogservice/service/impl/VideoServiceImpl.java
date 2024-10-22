@@ -78,7 +78,7 @@ public class VideoServiceImpl implements VideoService {
             throw new RuntimeException(e.getMessage());
         }
 
-        return "Video: " + file.getOriginalFilename()+" successfully saved";
+        return "Video: " + file.getOriginalFilename() + " successfully saved";
     }
 
     public void deleteVideo(Long videoId, Long blogId) {
@@ -124,7 +124,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
 
-/**
+    /**
      * Setting the video resolutions with custom resolutionWidth and resolutionHeight values
      *
      * @param resolutionHeight video frame resolutionHeight
@@ -132,9 +132,9 @@ public class VideoServiceImpl implements VideoService {
      * @return new resolution value with the help of the custom inputs
      * <p>
      * Some resolutions that you can define : (resolutionWidth: 640, resolutionHeight: 480) = 480P
-     *                                        (resolutionWidth: 1280,resolutionHeight: 720) = 720P
-     *                                        (resolutionWidth: 1920, resolutionHeight: 1080)= 1080P
-     *                                        (resolutionWidth: 2560, resolutionHeight: 1440)= 1440P
+     * (resolutionWidth: 1280,resolutionHeight: 720) = 720P
+     * (resolutionWidth: 1920, resolutionHeight: 1080)= 1080P
+     * (resolutionWidth: 2560, resolutionHeight: 1440)= 1440P
      */
 
     private static ResizeResolution getResolution(Integer resolutionHeight, Integer resolutionWidth) {
@@ -148,7 +148,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
 
-/**
+    /**
      * Getting the video file extension.
      *
      * @param file sending file which has to be video format

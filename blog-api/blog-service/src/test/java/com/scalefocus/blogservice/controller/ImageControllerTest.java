@@ -20,7 +20,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
 public class ImageControllerTest {
-    
+
     @Mock
     private ImageServiceImpl imageServiceImpl;
 
@@ -34,18 +34,18 @@ public class ImageControllerTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        multipartFile=new MockMultipartFile("file","test.jpeg", MediaType.IMAGE_JPEG_VALUE, "test.jpeg".getBytes());
-        imageResourceResponse=new ImageResourceResponse(multipartFile.getContentType(), multipartFile.getResource());
+        multipartFile = new MockMultipartFile("file", "test.jpeg", MediaType.IMAGE_JPEG_VALUE, "test.jpeg".getBytes());
+        imageResourceResponse = new ImageResourceResponse(multipartFile.getContentType(), multipartFile.getResource());
 
-        doReturn(uploadingImageResponse()).when(imageServiceImpl).saveImage(any(MultipartFile.class),anyLong(),anyInt(),anyInt());
-        doNothing().when(imageServiceImpl).deleteImage(anyLong(),anyLong());
+        doReturn(uploadingImageResponse()).when(imageServiceImpl).saveImage(any(MultipartFile.class), anyLong(), anyInt(), anyInt());
+        doNothing().when(imageServiceImpl).deleteImage(anyLong(), anyLong());
         doReturn(imageResourceResponse).when(imageServiceImpl).getImage(anyLong());
 
     }
 
     @Test
     public void testUploadingImage() {
- 
+
         ResponseEntity<String> uploadImageResponse = imageController.saveImage(multipartFile, 1L, 120, 100);
 
         assertThat(uploadImageResponse.getBody()).isNotNull();
@@ -54,7 +54,7 @@ public class ImageControllerTest {
     }
 
     @Test
-    public void testDeletingImage(){
+    public void testDeletingImage() {
         ResponseEntity<Void> deleteResponse = imageController.deleteImage(1L, 1L);
 
         assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
@@ -62,7 +62,7 @@ public class ImageControllerTest {
 
 
     @Test
-    public void testGettingImage(){
+    public void testGettingImage() {
         ResponseEntity<Resource> getImageResponse = imageController.getImage(1L);
 
         assertThat(getImageResponse.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));

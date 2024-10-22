@@ -46,7 +46,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public String saveImage(MultipartFile file, Long blogId, Integer imageWidth, Integer imageHeight) {
-        UserClientDto userClientDto =clientUtil.getAuthenticatedUser();
+        UserClientDto userClientDto = clientUtil.getAuthenticatedUser();
         if (userClientDto == null) {
             throw new ResourceNotFound("User not authenticated");
         }
@@ -93,7 +93,7 @@ public class ImageServiceImpl implements ImageService {
     }
 
     public void deleteImage(Long imageId, Long blogId) {
-       UserClientDto userClientDto =clientUtil.getAuthenticatedUser();
+        UserClientDto userClientDto = clientUtil.getAuthenticatedUser();
         if (userClientDto == null) {
             throw new ResourceNotFound("User not authenticated");
         }

@@ -59,8 +59,8 @@ public class VideoServiceImplTest {
     @BeforeEach
     public void setUp() throws IOException, VideoException {
         MockitoAnnotations.openMocks(this);
-        userId=1L;
-        userClientDto=new UserClientDto(1L,"test-client-user");
+        userId = 1L;
+        userClientDto = new UserClientDto(1L, "test-client-user");
         blog = Blog.builder()
                 .id(1L)
                 .title("test title")
@@ -76,7 +76,7 @@ public class VideoServiceImplTest {
 
         doReturn(userClientDto).when(userClientUtil).getAuthenticatedUser();
         when(Paths.get(anyString())).thenReturn(directory);
-        doReturn(blog).when(blogUtils).checkUserHasSpecificBlog(anyLong(),anyLong());
+        doReturn(blog).when(blogUtils).checkUserHasSpecificBlog(anyLong(), anyLong());
         doReturn(Optional.of(video)).when(videoRepository).findById(anyLong());
 
     }

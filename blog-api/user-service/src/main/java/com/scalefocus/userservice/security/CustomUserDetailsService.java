@@ -17,7 +17,7 @@ import java.util.HashSet;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private static final Logger logger= LogManager.getLogger(CustomUserDetailsService.class);
+    private static final Logger logger = LogManager.getLogger(CustomUserDetailsService.class);
 
     private final UserRepository userRepository;
 

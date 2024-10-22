@@ -68,8 +68,8 @@ public class BlogControllerTest {
         blogCreationReguest = new BlogCreationRequest(blogDto.title(), blogDto.text(), tags, userId);
         simplifiedBlogResponse = new SimplifiedBlogResponse(blogDto.title(), blogDto.text());
         simplifiedBlogResponseList = List.of(simplifiedBlogResponse);
-        responsePagination=new SimplifiedBlogResponsePagination(simplifiedBlogResponseList,1,1,
-                1,1);
+        responsePagination = new SimplifiedBlogResponsePagination(simplifiedBlogResponseList, 1, 1,
+                1, 1);
 
         UserBlogResponse userBlogResponse = podamFactory.manufacturePojo(UserBlogResponse.class);
 
@@ -78,7 +78,7 @@ public class BlogControllerTest {
         doReturn(blogDto).when(blogService).addTag(anyLong(), any(TagAddRequest.class));
         doReturn(blogDto).when(blogService).removeTag(anyLong(), anyLong());
         doReturn(blogDtoList).when(blogService).getBlogsByTagName(anyString());
-        doReturn(responsePagination).when(blogService).getSimplifiedBlogs(anyInt(),anyInt());
+        doReturn(responsePagination).when(blogService).getSimplifiedBlogs(anyInt(), anyInt());
         doReturn(userBlogResponse).when(blogService).getUserBlogs(anyLong());
     }
 
@@ -170,7 +170,7 @@ public class BlogControllerTest {
 
     @Test
     public void testDeletingBlog() {
-       doNothing().when(blogService).deleteUserBlog(anyLong(),anyLong());
+        doNothing().when(blogService).deleteUserBlog(anyLong(), anyLong());
 
         ResponseEntity<Void> deletedUserBlog = blogController.deleteUserBlog(1L, 1L);
 

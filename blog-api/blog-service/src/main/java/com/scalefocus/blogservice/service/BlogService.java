@@ -30,8 +30,8 @@ public interface BlogService {
 
     SimplifiedBlogResponsePagination getSimplifiedBlogs(int pageNumber, int pageSize);
 
-    void deleteUserBlog(Long blogId,Long userId);
+    void deleteUserBlog(Long blogId, Long userId);
 
-    List<ElasticBlogDocument> searchByKeyword (String keyword);
+    List<ElasticBlogDocument> searchByKeyword(String keyword);
 
 }

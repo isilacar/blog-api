@@ -34,10 +34,10 @@ public class VideoControllerTest {
         MockitoAnnotations.openMocks(this);
 
         multipartFile = new MockMultipartFile("video", "test.mp4", "video/mp4", "content".getBytes());
-        videoResourceResponse=new VideoResourceResponse(multipartFile.getContentType(), multipartFile.getResource());
+        videoResourceResponse = new VideoResourceResponse(multipartFile.getContentType(), multipartFile.getResource());
 
-        doReturn(uploadingVideoResponse()).when(videoServiceImpl).createVideo(any(MultipartFile.class),anyLong(),anyInt(),anyInt());
-        doNothing().when(videoServiceImpl).deleteVideo(anyLong(),anyLong());
+        doReturn(uploadingVideoResponse()).when(videoServiceImpl).createVideo(any(MultipartFile.class), anyLong(), anyInt(), anyInt());
+        doNothing().when(videoServiceImpl).deleteVideo(anyLong(), anyLong());
         doReturn(videoResourceResponse).when(videoServiceImpl).getVideo(anyLong());
 
     }
@@ -53,14 +53,14 @@ public class VideoControllerTest {
     }
 
     @Test
-    public void testDeletingVideo(){
+    public void testDeletingVideo() {
         ResponseEntity<Void> deleteResponse = videoController.deleteVideo(1L, 1L);
 
         assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
     }
 
     @Test
-    public void testGettingVideo(){
+    public void testGettingVideo() {
         ResponseEntity<Resource> getVideoResponse = videoController.getVideo(1L);
 
         assertThat(getVideoResponse.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
@@ -70,7 +70,7 @@ public class VideoControllerTest {
     }
 
     private String uploadingVideoResponse() {
-        return "Video: " + multipartFile.getOriginalFilename()+" successfully saved";
+        return "Video: " + multipartFile.getOriginalFilename() + " successfully saved";
     }
 
 }

@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
         Boolean existsByUsername = userRepository.existsByUsername(registerRequest.getUsername());
 
         if (existsByUsername) {
-            logger.error("Username '{}' already exists",registerRequest.getUsername());
+            logger.error("Username '{}' already exists", registerRequest.getUsername());
             throw new UserExistException("Username already exists");
         }
         User user = User.builder()
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         User user = userRepository.findByUsername(authenticationRequest.getUsername()).get();
-        logger.info("Authenticated user id '{}'",user.getId());
+        logger.info("Authenticated user id '{}'", user.getId());
         String token = jwtTokenProvider.generateToken(user);
         logger.info("Token generated successfully for user with id '{}' ", user.getId());
         setExpiredAllUserTokens(user);

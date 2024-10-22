@@ -47,7 +47,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public BlogDto createBlog(BlogCreationRequest blogCreationRequest) {
-        UserClientDto user =userClientUtil.getAuthenticatedUser();
+        UserClientDto user = userClientUtil.getAuthenticatedUser();
 
         logger.info("User with id '{}' has founded", blogCreationRequest.getUserId());
         Blog blog = blogMapper.getBlog(blogCreationRequest, user);
@@ -81,10 +81,10 @@ public class BlogServiceImpl implements BlogService {
                     logger.error("Blog does not exist with id '{}'", blogId);
                     return new ResourceNotFound("Blog does not exist with id: " + blogId);
                 });
-        UserClientDto user =userClientUtil.getAuthenticatedUser();
-        if (blog.getUserId()!=user.getId()) {
-            logger.error("User with id '{}' has not any blog with id {}", blog.getUserId(),blogId);
-            throw new ResourceNotFound("Blog with id: "+ blogId+" does not belong to user with id: "+user.getId());
+        UserClientDto user = userClientUtil.getAuthenticatedUser();
+        if (blog.getUserId() != user.getId()) {
+            logger.error("User with id '{}' has not any blog with id {}", blog.getUserId(), blogId);
+            throw new ResourceNotFound("Blog with id: " + blogId + " does not belong to user with id: " + user.getId());
         }
 
         logger.info("Blog has found with id '{}'", blogId);
@@ -104,10 +104,10 @@ public class BlogServiceImpl implements BlogService {
                     return new ResourceNotFound("Blog does not exist with id: " + blogId);
                 });
 
-        UserClientDto user =userClientUtil.getAuthenticatedUser();
-        if (blog.getUserId()!=user.getId()) {
-            logger.error("User with id '{}' has not any blog with id {}", blog.getUserId(),blogId);
-            throw new ResourceNotFound("Blog with id: "+ blogId+" does not belong to user with id: "+user.getId());
+        UserClientDto user = userClientUtil.getAuthenticatedUser();
+        if (blog.getUserId() != user.getId()) {
+            logger.error("User with id '{}' has not any blog with id {}", blog.getUserId(), blogId);
+            throw new ResourceNotFound("Blog with id: " + blogId + " does not belong to user with id: " + user.getId());
         }
 
         logger.info("Blog has found with id '{}'", blogId);
@@ -126,10 +126,10 @@ public class BlogServiceImpl implements BlogService {
                     return new ResourceNotFound("Blog does not exist with id: " + blogId);
                 });
 
-        UserClientDto user =userClientUtil.getAuthenticatedUser();
-        if (blog.getUserId()!=user.getId()) {
-            logger.error("User with id '{}' has not any blog with id {}", blog.getUserId(),blogId);
-            throw new ResourceNotFound("Blog with id: "+ blogId+" does not belong to user with id: "+user.getId());
+        UserClientDto user = userClientUtil.getAuthenticatedUser();
+        if (blog.getUserId() != user.getId()) {
+            logger.error("User with id '{}' has not any blog with id {}", blog.getUserId(), blogId);
+            throw new ResourceNotFound("Blog with id: " + blogId + " does not belong to user with id: " + user.getId());
         }
 
         logger.info("Blog with id '{}' has found", blogId);
@@ -173,17 +173,17 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public void deleteUserBlog(Long blogId,Long userId) {
-        UserClientDto user =userClientUtil.getAuthenticatedUser();
+    public void deleteUserBlog(Long blogId, Long userId) {
+        UserClientDto user = userClientUtil.getAuthenticatedUser();
 
         logger.info("User has found with user id '{}'", user.getId());
         Blog blog = blogRepository.findById(blogId).orElseThrow(() -> new ResourceNotFound("Blog does not exist with id: " + blogId));
-        if(user.getId().equals(blog.getUserId())) {
+        if (user.getId().equals(blog.getUserId())) {
             logger.info("Blog has found with id '{}'", blogId);
             blogRepository.delete(blog);
             logger.info("Blog with id '{}' has deleted successfully which belongs to user with id '{}'", blogId, user.getId());
-        }else {
-            throw new ResourceNotFound("Blog does not belong to this user with id: "+user.getId());
+        } else {
+            throw new ResourceNotFound("Blog does not belong to this user with id: " + user.getId());
         }
 
     }
@@ -198,8 +198,8 @@ public class BlogServiceImpl implements BlogService {
         UserClientDto authenticatedUser = userClientUtil.getAuthenticatedUser();
 
         UserClientDto user = userClientUtil.findUser(userId);
-        if(Objects.isNull(user)) {
-            throw new ResourceNotFound("User does not exist with id: "+userId);
+        if (Objects.isNull(user)) {
+            throw new ResourceNotFound("User does not exist with id: " + userId);
         }
 
         logger.info("User has found with user id '{}'", user.getId());
@@ -213,7 +213,6 @@ public class BlogServiceImpl implements BlogService {
         return userBlogResponse;
 
     }
-
 
 
 }

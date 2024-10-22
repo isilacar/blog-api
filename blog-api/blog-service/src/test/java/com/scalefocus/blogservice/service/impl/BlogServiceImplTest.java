@@ -56,7 +56,7 @@ public class BlogServiceImplTest {
     private TagRepository tagRepository;
 
     @Mock
-    private  UserClientUtil userClientUtil;
+    private UserClientUtil userClientUtil;
 
     @Mock
     private ElasticBlogRepository elasticBlogRepository;
@@ -76,7 +76,7 @@ public class BlogServiceImplTest {
     private BlogCreationRequest blogCreationRequest;
     private Long userId;
     private UserClientDto userClientDto;
-    private  Blog deletedBlog;
+    private Blog deletedBlog;
     private Page<Blog> blogPage;
 
     @BeforeEach
@@ -126,8 +126,7 @@ public class BlogServiceImplTest {
         blogPage = new PageImpl<>(blogList, PageRequest.of(0, 10), blogList.size());
 
 
-
-        deletedBlog= new Blog(6L, "test title", "test,text", tags, userId);
+        deletedBlog = new Blog(6L, "test title", "test,text", tags, userId);
 
         doReturn(blog).when(blogMapper).mapToBlog(any(BlogDto.class));
         doReturn(blogDto).when(blogMapper).mapToBlogDto(any(Blog.class));

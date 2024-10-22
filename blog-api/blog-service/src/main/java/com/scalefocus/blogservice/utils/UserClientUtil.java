@@ -16,7 +16,7 @@ public class UserClientUtil {
     }
 
     public UserClientDto findUser(Long userId) {
-        return restTemplate.getForObject("http://user-service/api/users/{userId}", UserClientDto.class,userId);
+        return restTemplate.getForObject("http://user-service/api/users/{userId}", UserClientDto.class, userId);
     }
 
 }

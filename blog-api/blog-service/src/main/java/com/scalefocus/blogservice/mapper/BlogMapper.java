@@ -25,13 +25,13 @@ public class BlogMapper {
     }
 
     public Blog mapToBlog(BlogDto blogDto) {
-       return Blog.builder().id(blogDto.id())
+        return Blog.builder().id(blogDto.id())
                 .title(blogDto.title())
                 .text(blogDto.text())
                 .tags(tagMapper.mapToTagList(blogDto.tagDtoSet()))
                 .build();
-
     }
+
     public Blog getBlog(BlogCreationRequest blogCreationRequest, UserClientDto user) {
         return Blog.builder()
                 .title(blogCreationRequest.getTitle())
@@ -40,6 +40,7 @@ public class BlogMapper {
                 .tags(blogCreationRequest.getTags())
                 .build();
     }
+
     public List<BlogDto> mapToBlogDtoList(List<Blog> blogs) {
         return blogs.stream().map(this::mapToBlogDto).toList();
     }

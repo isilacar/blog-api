@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
 public class BlogUtil {
 
     private final BlogRepository blogRepository;
-    public Blog checkUserHasSpecificBlog(Long blogId,Long userId) {
-        Blog foundBlog = blogRepository.findById(blogId).orElseThrow(() -> new ResourceNotFound("Blog Not Found with id: "+ blogId));
-        if(foundBlog.getUserId().equals(userId)) {
+
+    public Blog checkUserHasSpecificBlog(Long blogId, Long userId) {
+        Blog foundBlog = blogRepository.findById(blogId).orElseThrow(() -> new ResourceNotFound("Blog Not Found with id: " + blogId));
+        if (foundBlog.getUserId().equals(userId)) {
             return foundBlog;
-        }
-        else {
+        } else {
             throw new ResourceNotFound("User does not have specific blog");
         }
     }

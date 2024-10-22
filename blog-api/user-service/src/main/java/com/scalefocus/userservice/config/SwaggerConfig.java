@@ -34,6 +34,7 @@ public class SwaggerConfig {
     String schemeName = "bearerAuth";
     String bearerFormat = "JWT";
     String scheme = "bearer";
+
     @Bean
     public OpenAPI caseOpenAPI() {
         return new OpenAPI()

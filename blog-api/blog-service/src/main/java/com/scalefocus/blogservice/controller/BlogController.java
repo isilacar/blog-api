@@ -62,9 +62,9 @@ public class BlogController {
     )
     //users can get all the blogs
     @GetMapping
-    public ResponseEntity<List<BlogDto>> getAllBlogs(){
+    public ResponseEntity<List<BlogDto>> getAllBlogs() {
         logger.info("Getting all blogs");
-        return new ResponseEntity<>(blogService.getAllBlogs(),HttpStatus.OK);
+        return new ResponseEntity<>(blogService.getAllBlogs(), HttpStatus.OK);
     }
 
 
@@ -83,7 +83,6 @@ public class BlogController {
     }
 
 
-
     @Operation(
             summary = "Update Blog REST API",
             description = "Update Blog REST API is used to update a particular blog in the database"
@@ -95,7 +94,7 @@ public class BlogController {
     //users can update specific blog
     @PutMapping("/{blogId}")
     public ResponseEntity<BlogDto> updateBlog(@PathVariable Long blogId,
-                                              @RequestBody BlogUpdateRequest blogUpdateRequest){
+                                              @RequestBody BlogUpdateRequest blogUpdateRequest) {
         logger.info("Blog with id '{}' is updating", blogId);
         return new ResponseEntity<>(blogService.updateBlog(blogId, blogUpdateRequest), HttpStatus.OK);
     }
@@ -110,7 +109,7 @@ public class BlogController {
     )
     //users can add new tag to existing blogs
     @PutMapping("/{blogId}/tags")
-    public ResponseEntity<BlogDto> addTagToBlog(@PathVariable Long blogId, @RequestBody TagAddRequest tagAddRequest){
+    public ResponseEntity<BlogDto> addTagToBlog(@PathVariable Long blogId, @RequestBody TagAddRequest tagAddRequest) {
         logger.info("Adding new tag to blog with id '{}'", blogId);
         return new ResponseEntity<>(blogService.addTag(blogId, tagAddRequest), HttpStatus.OK);
     }
@@ -125,8 +124,8 @@ public class BlogController {
     )
     //users can remove any tag from specific blog
     @DeleteMapping("/{blogId}/tags/{tagId}")
-    public ResponseEntity<BlogDto> deleteTagFromBlog(@PathVariable Long blogId, @PathVariable Long tagId){
-        logger.info("Deleting tag with id '{}' from blog with id '{}'",tagId, blogId);
+    public ResponseEntity<BlogDto> deleteTagFromBlog(@PathVariable Long blogId, @PathVariable Long tagId) {
+        logger.info("Deleting tag with id '{}' from blog with id '{}'", tagId, blogId);
         return new ResponseEntity<>(blogService.removeTag(blogId, tagId), HttpStatus.OK);
     }
 
@@ -140,24 +139,23 @@ public class BlogController {
     )
     //users can get all blogs by specific tagName
     @GetMapping("/tagName/{tagName}")
-    public ResponseEntity<List<BlogDto>> getAllBlogsByTagName(@PathVariable String tagName){
+    public ResponseEntity<List<BlogDto>> getAllBlogsByTagName(@PathVariable String tagName) {
         logger.info("Getting all blogs by tag name '{}'", tagName);
-        return new ResponseEntity<>(blogService.getBlogsByTagName(tagName),HttpStatus.OK);
+        return new ResponseEntity<>(blogService.getBlogsByTagName(tagName), HttpStatus.OK);
     }
 
     /**
-     *
      * @param pageNumber refers to which page you want to view
-     * @param pageSize refers to the number of data that will appear on the page
+     * @param pageSize   refers to the number of data that will appear on the page
      * @return SimplifiedBlogResponsePagination object which includes the data with blog title and text,
-     *          total number blogs, total count of the pages, current page number and number of values
-     *          in a page
+     * total number blogs, total count of the pages, current page number and number of values
+     * in a page
      */
     //users can get simplified blog list
     @GetMapping("/simplified")
-    public ResponseEntity<SimplifiedBlogResponsePagination> getSimplifiedBlogs(@RequestParam int pageNumber, @RequestParam int pageSize){
+    public ResponseEntity<SimplifiedBlogResponsePagination> getSimplifiedBlogs(@RequestParam int pageNumber, @RequestParam int pageSize) {
         logger.info("Getting simplified blogs with pagination");
-        return new ResponseEntity<>(blogService.getSimplifiedBlogs(pageNumber,pageSize),HttpStatus.OK);
+        return new ResponseEntity<>(blogService.getSimplifiedBlogs(pageNumber, pageSize), HttpStatus.OK);
     }
 
     @Operation(
@@ -171,7 +169,7 @@ public class BlogController {
     //authenticated users can remove own blogs
     @DeleteMapping("/{blogId}/{userId}")
     public ResponseEntity<Void> deleteUserBlog(@PathVariable Long blogId, @PathVariable Long userId) {
-        logger.info("Deleting blog with id '{}'",blogId);
+        logger.info("Deleting blog with id '{}'", blogId);
         blogService.deleteUserBlog(blogId, userId);
         logger.info("Blog with id '{}' deleted", blogId);
         return new ResponseEntity<>(HttpStatus.OK);

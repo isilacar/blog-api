@@ -23,10 +23,10 @@ public class SecurityUtil {
 
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
-            if (! (principal instanceof UserDetails userDetails)) {
+            if (!(principal instanceof UserDetails userDetails)) {
                 throw new ResourceNotFound("User not found");
             }
-                return userRepository.findByUsername(userDetails.getUsername());
+            return userRepository.findByUsername(userDetails.getUsername());
         }
         return Optional.empty();
     }

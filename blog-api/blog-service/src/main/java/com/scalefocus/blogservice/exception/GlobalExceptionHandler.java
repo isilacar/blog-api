@@ -29,13 +29,13 @@ public class GlobalExceptionHandler {
                 typeMismatchException.getMessage(),
                 webRequest.getDescription(false)), HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(UserNotAuthenticatedException.class)
-    public ResponseEntity<ErrorDetails> userNotAuthenticatedException(UserNotAuthenticatedException userNotAuthenticated, WebRequest webRequest){
+    public ResponseEntity<ErrorDetails> userNotAuthenticatedException(UserNotAuthenticatedException userNotAuthenticated, WebRequest webRequest) {
         return new ResponseEntity<>(new ErrorDetails(getTime(),
                 "USER NOT AUTHENTICATED",
                 userNotAuthenticated.getMessage(),
                 webRequest.getDescription(false)), HttpStatus.UNAUTHORIZED);
-
     }
 
     @ExceptionHandler(RuntimeException.class)

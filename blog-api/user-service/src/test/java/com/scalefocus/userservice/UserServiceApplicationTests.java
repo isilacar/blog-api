@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource("classpath:application-test.properties")
-class UserServiceApplicationTests  extends AbstractMysqlContainer{
+class UserServiceApplicationTests extends AbstractMysqlContainer {
 
     public static final String SECRET_KEY = "f07afe0e45657f1df3d7cf9141c39185527363b9e7b47225af954d6ed6a801db";
 
@@ -124,7 +124,7 @@ class UserServiceApplicationTests  extends AbstractMysqlContainer{
     }
 
     @Test
-    public void testGettingUserDetails(){
+    public void testGettingUserDetails() {
         String getUserDetailsUrl = baseUrl + "/getUserDetails";
         ResponseEntity<UserDto> foundedUser = testRestTemplate.exchange(getUserDetailsUrl, HttpMethod.GET, new HttpEntity<>(null, headers), UserDto.class);
 
@@ -134,8 +134,8 @@ class UserServiceApplicationTests  extends AbstractMysqlContainer{
     }
 
     @Test
-    public void testFindUserById(){
-        String findUserByIdUrl=baseUrl+"/{userId}";
+    public void testFindUserById() {
+        String findUserByIdUrl = baseUrl + "/{userId}";
         ResponseEntity<UserDto> foundedUser = testRestTemplate.exchange(findUserByIdUrl, HttpMethod.GET, new HttpEntity<>(null, headers), UserDto.class, user.getId());
 
         assertNotNull(foundedUser);

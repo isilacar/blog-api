@@ -141,15 +141,15 @@ public class UserServiceImplTest {
         UserDto authenticatedUser = userServiceImpl.getAuthenticatedUser();
         assertThat(authenticatedUser).isNotNull();
         assertThat(authenticatedUser.getUsername()).isNotNull();
-        assertEquals(authenticatedUser.getUsername(),user.getUsername());
+        assertEquals(authenticatedUser.getUsername(), user.getUsername());
     }
 
     @Test
-    public void testFindUserById(){
+    public void testFindUserById() {
         doReturn(Optional.of(user)).when(userRepository).findById(anyLong());
         UserDto userDto = userServiceImpl.findById(1L);
 
         assertThat(userDto).isNotNull();
-        assertEquals(userDto.getUsername(),user.getUsername());
+        assertEquals(userDto.getUsername(), user.getUsername());
     }
 }

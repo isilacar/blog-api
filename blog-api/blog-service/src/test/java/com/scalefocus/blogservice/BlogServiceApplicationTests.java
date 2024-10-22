@@ -199,7 +199,7 @@ class BlogServiceApplicationTests extends AbstractMysqlContainer {
                         simplifiedBlogUrl,
                         HttpMethod.GET,
                         null,
-                        SimplifiedBlogResponsePagination.class,1,1)
+                        SimplifiedBlogResponsePagination.class, 1, 1)
                 .getBody();
 
         assertNotNull(simplifiedBlogResponses);

@@ -47,7 +47,7 @@ public class UserControllerTest {
         tokenResponse = new TokenResponse();
         tokenResponse.setToken("token taken");
 
-        userDto = new UserDto(1L,"test-user");
+        userDto = new UserDto(1L, "test-user");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testGettingUserDetails(){
+    public void testGettingUserDetails() {
         doReturn(userDto).when(userService).getAuthenticatedUser();
 
         ResponseEntity<UserDto> userDetails = userController.getUserDetails();

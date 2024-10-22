@@ -31,7 +31,7 @@ public class BlogUtilTest {
 
     public static final long BLOG_ID = 1L;
 
-    public static final String BLOG_NOT_FOUND_ERROR_MESSAGE = "Blog Not Found with id: " + BLOG_ID ;
+    public static final String BLOG_NOT_FOUND_ERROR_MESSAGE = "Blog Not Found with id: " + BLOG_ID;
 
 
     @BeforeEach
@@ -55,7 +55,7 @@ public class BlogUtilTest {
     @Test
     public void testCheckUserHasSpecificBlog_ThrowsResourceNotFoundException_WhenBlogDoesNotExist() {
         doReturn(Optional.empty()).when(blogRepository).findById(anyLong());
-        ResourceNotFound assertThrows = assertThrows(ResourceNotFound.class, () -> blogUtil.checkUserHasSpecificBlog(1L,1L),
+        ResourceNotFound assertThrows = assertThrows(ResourceNotFound.class, () -> blogUtil.checkUserHasSpecificBlog(1L, 1L),
                 "Should throw exception when blog not found");
 
         assertThat(assertThrows).hasMessage(BLOG_NOT_FOUND_ERROR_MESSAGE);

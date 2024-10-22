@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private static final Logger logger= LogManager.getLogger(UserController.class);
+    private static final Logger logger = LogManager.getLogger(UserController.class);
 
     private final UserService userService;
 
@@ -58,13 +58,13 @@ public class UserController {
     }
 
     @GetMapping("/getUserDetails")
-    public ResponseEntity<UserDto> getUserDetails(){
-        UserDto userDto=userService.getAuthenticatedUser();
+    public ResponseEntity<UserDto> getUserDetails() {
+        UserDto userDto = userService.getAuthenticatedUser();
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getUser(@PathVariable Long userId){
-         return new ResponseEntity<>(userService.findById(userId),HttpStatus.OK);
+    public ResponseEntity<UserDto> getUser(@PathVariable Long userId) {
+        return new ResponseEntity<>(userService.findById(userId), HttpStatus.OK);
     }
 }

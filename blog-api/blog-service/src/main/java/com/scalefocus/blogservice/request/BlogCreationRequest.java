@@ -33,7 +33,7 @@ public class BlogCreationRequest {
     @Schema(
             description = "Blog Tag List"
     )
-    Set<Tag> tags=new HashSet<>();
+    Set<Tag> tags = new HashSet<>();
 
     @Schema(
             description = "Blog belong to which user information"

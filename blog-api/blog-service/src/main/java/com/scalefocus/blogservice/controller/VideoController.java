@@ -35,11 +35,11 @@ public class VideoController {
     )
     @PostMapping
     public ResponseEntity<String> createVideo(@RequestParam("video") MultipartFile file,
-                              @RequestParam Long blogId,
-                              @RequestParam Integer resolutionWidth,
-                              @RequestParam Integer resolutionHeight) {
+                                              @RequestParam Long blogId,
+                                              @RequestParam Integer resolutionWidth,
+                                              @RequestParam Integer resolutionHeight) {
 
-        return new ResponseEntity<>( videoService.createVideo(file, blogId, resolutionWidth, resolutionHeight),HttpStatus.CREATED);
+        return new ResponseEntity<>(videoService.createVideo(file, blogId, resolutionWidth, resolutionHeight), HttpStatus.CREATED);
     }
 
     @Operation(
