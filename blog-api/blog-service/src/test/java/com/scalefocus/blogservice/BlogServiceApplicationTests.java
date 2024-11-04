@@ -3,7 +3,9 @@ package com.scalefocus.blogservice;
 import com.scalefocus.blogservice.dto.BlogDto;
 import com.scalefocus.blogservice.dto.TagDto;
 import com.scalefocus.blogservice.dto.UserClientDto;
+import com.scalefocus.blogservice.entity.ElasticBlogDocument;
 import com.scalefocus.blogservice.entity.Tag;
+import com.scalefocus.blogservice.producer.KafkaElasticBlogProducer;
 import com.scalefocus.blogservice.repository.BlogRepository;
 import com.scalefocus.blogservice.repository.ElasticBlogRepository;
 import com.scalefocus.blogservice.request.BlogCreationRequest;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -34,6 +37,8 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -54,6 +59,9 @@ class BlogServiceApplicationTests extends AbstractMysqlContainer {
     @Autowired
     private ElasticBlogRepository elasticBlogRepository;
 
+    @MockBean
+    private KafkaElasticBlogProducer kafkaElasticBlogProducer;
+
     private static TestRestTemplate testRestTemplate;
     private Long userId;
 
@@ -72,6 +80,7 @@ class BlogServiceApplicationTests extends AbstractMysqlContainer {
         userClientDto = new UserClientDto(1L, "test-client-user");
         doReturn(userClientDto).when(userClientUtil).getAuthenticatedUser();
         doReturn(userClientDto).when(userClientUtil).findUser(userId);
+        doNothing().when(kafkaElasticBlogProducer).createEvent(any(ElasticBlogDocument.class));
     }
 
     @Test

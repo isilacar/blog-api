@@ -5,16 +5,17 @@ import com.scalefocus.blogservice.dto.BlogDto;
 import com.scalefocus.blogservice.dto.TagDto;
 import com.scalefocus.blogservice.dto.UserClientDto;
 import com.scalefocus.blogservice.entity.Blog;
+import com.scalefocus.blogservice.entity.ElasticBlogDocument;
 import com.scalefocus.blogservice.entity.Tag;
 import com.scalefocus.blogservice.exception.ResourceNotFound;
 import com.scalefocus.blogservice.mapper.BlogMapper;
+import com.scalefocus.blogservice.producer.KafkaElasticBlogProducer;
 import com.scalefocus.blogservice.repository.BlogRepository;
 import com.scalefocus.blogservice.repository.ElasticBlogRepository;
 import com.scalefocus.blogservice.repository.TagRepository;
 import com.scalefocus.blogservice.request.BlogCreationRequest;
 import com.scalefocus.blogservice.request.BlogUpdateRequest;
 import com.scalefocus.blogservice.request.TagAddRequest;
-import com.scalefocus.blogservice.response.SimplifiedBlogResponse;
 import com.scalefocus.blogservice.response.SimplifiedBlogResponsePagination;
 import com.scalefocus.blogservice.response.UserBlogResponse;
 import com.scalefocus.blogservice.utils.UserClientUtil;
@@ -60,6 +61,9 @@ public class BlogServiceImplTest {
 
     @Mock
     private ElasticBlogRepository elasticBlogRepository;
+
+    @Mock
+    private KafkaElasticBlogProducer kafkaElasticBlogProducer;
 
     @InjectMocks
     private BlogServiceImpl blogServiceImpl;
@@ -133,6 +137,7 @@ public class BlogServiceImplTest {
         doReturn(blogDtoList).when(blogMapper).mapToBlogDtoList(anyList());
         doReturn(userClientDto).when(userClientUtil).getAuthenticatedUser();
         doReturn(userClientDto).when(userClientUtil).findUser(anyLong());
+        doNothing().when(kafkaElasticBlogProducer).createEvent(any(ElasticBlogDocument.class));
     }
 
     @Test
