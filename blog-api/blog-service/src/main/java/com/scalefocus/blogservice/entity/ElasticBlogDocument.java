@@ -1,9 +1,6 @@
 package com.scalefocus.blogservice.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -11,10 +8,10 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.io.Serializable;
 import java.util.List;
 
-@Getter
-@Setter
+
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Document(indexName = "blogs_document")
 public class ElasticBlogDocument implements Serializable {
 

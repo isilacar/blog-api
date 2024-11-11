@@ -9,6 +9,7 @@ import com.scalefocus.blogservice.entity.ElasticTag;
 import com.scalefocus.blogservice.entity.Tag;
 import com.scalefocus.blogservice.exception.ResourceNotFound;
 import com.scalefocus.blogservice.mapper.BlogMapper;
+import com.scalefocus.blogservice.producer.KafkaElasticBlogProducer;
 import com.scalefocus.blogservice.repository.BlogRepository;
 import com.scalefocus.blogservice.repository.ElasticBlogRepository;
 import com.scalefocus.blogservice.repository.TagRepository;
@@ -27,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +43,7 @@ public class BlogServiceImpl implements BlogService {
     private final TagRepository tagRepository;
     private final UserClientUtil userClientUtil;
     private final ElasticBlogRepository elasticBlogRepository;
-    private final RestTemplate restTemplate;
+    private final KafkaElasticBlogProducer kafkaElasticBlogProducer;
 
     @Override
     public BlogDto createBlog(BlogCreationRequest blogCreationRequest) {
@@ -58,11 +58,10 @@ public class BlogServiceImpl implements BlogService {
         elasticBlogDocument.setTitle(savedBlog.getTitle());
         elasticBlogDocument.setText(savedBlog.getText());
         elasticBlogDocument.setUserId(user.getId());
-        elasticBlogDocument.setTags(blog.getTags().stream()
+        elasticBlogDocument.setTags(savedBlog.getTags().stream()
                 .map(tag -> new ElasticTag(tag.getId(), tag.getName())).toList());
 
-        elasticBlogRepository.save(elasticBlogDocument);
-
+        kafkaElasticBlogProducer.createEvent(elasticBlogDocument);
 
         logger.info("Blog has created successfully by the user id '{}'", user.getId());
         return blogMapper.mapToBlogDto(savedBlog);
