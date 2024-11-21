@@ -1,0 +1,21 @@
+name: Trigger Jenkins on Merge to Master
+
+on:
+  pull_request:
+    branches:
+      - master
+    types: [ closed ]
+
+jobs:
+  trigger-jenkins:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Trigger Jenkins Job
+        run: |
+           echo "Triggering Jenkins job..."
+           curl -X POST https://6df1-176-33-66-123.ngrok-free.app/job/blogApplication/build \
+           --user "isilacar:11eb5c0e3949e8a31a64ae0920d546a501"

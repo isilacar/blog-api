@@ -1,0 +1,107 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'java'
+        maven 'maven'
+    }
+    stages {
+        stage('Checkout') {
+            options {
+                timeout(time: 10, unit: "MINUTES")
+            }
+
+            steps {
+                echo "Start Clone Project process."
+                git url: 'https://github.com/isilacar/blog-api', branch: 'master'
+            }
+        }
+
+        stage('Build') {
+            options {
+                timeout(time: 30, unit: "MINUTES")
+            }
+
+            steps {
+
+                echo "Building process start for Blog Service"
+                dir('blog-api/blog-service') {
+                    echo 'building blog-service'
+                    bat 'mvn clean install -DskipTests'
+                }
+                echo "Building process completed for Blog Service"
+
+                echo "Building process start for User Service"
+                dir('blog-api/user-service') {
+                    echo 'building user-service'
+                    bat 'mvn clean install -DskipTests'
+                }
+                echo "Building process completed for User Service"
+
+                echo "Building process start for Eureka Service"
+                dir('blog-api/eureka-service') {
+                    echo 'building eureka-service'
+                    bat 'mvn clean install -DskipTests'
+                }
+                echo "Building process completed for Eureka Service"
+            }
+        }
+
+        stage('Unit Tests') {
+            options {
+                timeout(time: 30, unit: "MINUTES")
+            }
+
+            steps{
+                echo "Start Unit Test process for Blog Service."
+                dir('blog-api/blog-service'){
+                    bat 'mvn test -Dtest=!BlogServiceApplicationTests'  // Skips integration tests
+                }
+                echo "End Unit Test process for Blog Service."
+
+                echo "Start Unit Test process for User Service."
+                dir('blog-api/user-service'){
+                    bat 'mvn test -Dtest=!UserServiceApplicationTests'  // Skips integration tests
+                }
+                echo "End Unit Test process for User Service."
+            }
+
+
+        }
+
+        stage('Integration Tests') {
+            options {
+                timeout(time: 30, unit: "MINUTES")
+            }
+
+            steps {
+                echo "Start Integration Test process for Blog Service."
+                dir('blog-api/blog-service'){
+                    bat 'mvn test -Dtest=BlogServiceApplicationTests' //Skips unit tests
+                }
+                echo "End Integration Test process for Blog Service."
+
+                echo "Start Integration Test process for User Service."
+                dir('blog-api/user-service'){
+                    bat 'mvn test -Dtest=UserServiceApplicationTests'  //Skips unit tests
+                }
+                echo "End Integration Test process for User Service."
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+        always {
+            echo 'Cleaning up...'
+            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            cleanWs()
+        }
+
+    }
+}
