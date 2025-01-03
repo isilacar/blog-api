@@ -5,6 +5,17 @@ pipeline {
         jdk 'java'
         maven 'maven'
     }
+
+    environment {
+        AWS_CREDENTIALS = credentials('aws-credentials')
+        AWS_REGION = 'us-east-1'
+        AWS_ACCOUNT_ID = '145023091765'
+        ECR_REPO_BLOG = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/blog-service"
+        ECR_REPO_USER = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/user-service"
+        ECR_REPO_EUREKA = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/eureka-service"
+        VERSION = "v1.0" + "." + "${BUILD_NUMBER}"
+    }
+
     stages {
         stage('Checkout') {
             options {
@@ -88,6 +99,102 @@ pipeline {
                 echo "End Integration Test process for User Service."
             }
         }
+
+        stage('AWS ECR Login') {
+            options {
+                timeout(time: 30, unit: "MINUTES")
+            }
+
+            steps {
+                bat 'aws ecr get-login-password --region %AWS_REGION% | docker login --username AWS --password-stdin %AWS_ACCOUNT_ID%.dkr.ecr.%AWS_REGION%.amazonaws.com'
+                echo "Successfully Login to AWS ECR"
+            }
+        }
+
+        stage('Create ECR Repositories') {
+            options {
+                timeout(time: 30, unit: "MINUTES")
+            }
+
+            steps {
+                bat '''
+                   :: Check if 'blog-service' repository exists
+                   aws ecr describe-repositories --repository-name blog-service --region %AWS_REGION% >nul 2>&1
+                   if %errorlevel% neq 0 (
+                       echo "Creating blog-service repository..."
+                       aws ecr create-repository --repository-name blog-service --region %AWS_REGION%
+                   ) else (
+                       echo "Repository 'blog-service' already exists, skipping creation."
+                   )
+                   
+                   :: Check if 'user-service' repository exists
+                   aws ecr describe-repositories --repository-name user-service --region %AWS_REGION% >nul 2>&1
+                   if %errorlevel% neq 0 (
+                       echo "Creating user-service repository..."
+                       aws ecr create-repository --repository-name user-service --region %AWS_REGION%
+                   ) else (
+                       echo "Repository 'user-service' already exists, skipping creation."
+                   )
+                   
+                   :: Check if 'eureka-service' repository exists
+                   aws ecr describe-repositories --repository-name eureka-service --region %AWS_REGION% >nul 2>&1
+                   if %errorlevel% neq 0 (
+                       echo "Creating eureka-service repository..."
+                       aws ecr create-repository --repository-name eureka-service --region %AWS_REGION%
+                   ) else (
+                       echo "Repository 'eureka-service' already exists, skipping creation."
+                   )
+                  '''
+            }
+        }
+        stage('Build Docker Images') {
+            options {
+                timeout(time: 30, unit: "MINUTES")
+            }
+            steps {
+                bat '''
+                    cd blog-api/blog-service
+                    echo 'building docker image for blog-service'
+                    docker build -t blog-service:%BUILD_NUMBER% .
+                    echo 'docker image successfully created for blog-service'
+                    
+                    cd ../user-service
+                    echo 'building docker image for user-service'
+                    docker build -t user-service:%BUILD_NUMBER% .
+                    echo 'docker image successfully created for user-service'
+                                       
+                    cd ../eureka-service
+                    echo 'building docker image for eureka-service'
+                    docker build -t eureka-service:%BUILD_NUMBER% .
+                    echo 'docker image successfully created for eureka-service'
+                  '''
+
+            }
+        }
+        stage('Push Images to ECR') {
+            options {
+                timeout(time: 30, unit: "MINUTES")
+            }
+            steps {
+                bat '''
+                     echo 'pushing blog-service:%BUILD_NUMBER% image to AWS ECR'
+                     docker tag blog-service:%BUILD_NUMBER% %ECR_REPO_BLOG%:%BUILD_NUMBER%
+                     docker push %ECR_REPO_BLOG%:%BUILD_NUMBER%
+                     echo 'successfully pushed blog-service:%BUILD_NUMBER% image to AWS ECR'
+                     
+                     echo 'pushing user-service:%BUILD_NUMBER% image to AWS ECR'
+                     docker tag user-service:%BUILD_NUMBER% %ECR_REPO_USER%:%BUILD_NUMBER%
+                     docker push %ECR_REPO_USER%:%BUILD_NUMBER%
+                     echo 'successfully pushed user-service:%BUILD_NUMBER% image to AWS ECR'
+                     
+                     echo 'pushing eureka-service:%BUILD_NUMBER% image to AWS ECR'
+                     docker tag eureka-service:%BUILD_NUMBER% %ECR_REPO_EUREKA%:%BUILD_NUMBER%
+                     docker push %ECR_REPO_EUREKA%:%BUILD_NUMBER%
+                     echo 'successfully pushed eureka-service:%BUILD_NUMBER% image to AWS ECR'
+                    '''
+            }
+        }
+
     }
 
     post {
