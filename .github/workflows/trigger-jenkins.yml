@@ -17,5 +17,5 @@ jobs:
       - name: Trigger Jenkins Job
         run: |
            echo "Triggering Jenkins job..."
-           curl -X POST https://6696-176-33-66-123.ngrok-free.app/job/blogApplication/build \
+           curl -X POST https://515b-176-33-68-92.ngrok-free.app/job/blogApplication/build \
            --user "isilacar:11eb5c0e3949e8a31a64ae0920d546a501"
