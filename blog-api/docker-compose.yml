@@ -1,7 +1,7 @@
 services:
   user-service:
     build:
-      context: /user-service
+      context: ./user-service
       dockerfile: Dockerfile
     container_name: user-service
     restart: on-failure
@@ -9,9 +9,13 @@ services:
       - "8081:8081"
     networks:
       - blog-network
+    env_file:
+      - .env
     environment:
-      SPRING.DATASOURCE.URL: jdbc:mysql://mysql:3306/userdb
-      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/userdb?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
     depends_on:
       mysql:
         condition: service_healthy
@@ -20,7 +24,7 @@ services:
 
   blog-service:
     build:
-      context: /blog-service
+      context: ./blog-service
       dockerfile: Dockerfile
     container_name: blog-service
     restart: on-failure
@@ -29,9 +33,14 @@ services:
     networks:
       - blog-network
     environment:
-      SPRING.DATASOURCE.URL: jdbc:mysql://mysql:3306/blogdb
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/blogdb?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
-      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://eurekaserver:8761/eureka/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
       mysql:
         condition: service_healthy
@@ -50,7 +59,7 @@ services:
     networks:
       - blog-network
     environment:
-      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     healthcheck:
       test: [ "CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD' ]
       timeout: 20s
@@ -59,20 +68,39 @@ services:
       - ./user-service/src/main/resources/scripts/mysql.sql:/docker-entrypoint-initdb.d/mysql.sql
       - mysql-data-volume:/var/lib/mysql
 
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    networks:
+    - blog-network
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: sonardb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U sonar" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   sonarqube:
     image: sonarqube:9-community
     container_name: sonarqube
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     ports:
       - "9000:9000"
     networks:
       - blog-network
     environment:
-      - SONARQUBE_JDBC_URL=jdbc:mysql://mysql-db:3306/sonarqubedb?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance&useSSL=false
-      - SONARQUBE_JDBC_USERNAME=sonar
-      - SONARQUBE_JDBC_PASSWORD=sonar
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonardb
+      SONAR_JDBC_USERNAME: ${SONAR_USERNAME}
+      SONAR_JDBC_PASSWORD: ${SONAR_PASSWORD}
     volumes:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
@@ -117,7 +145,7 @@ services:
 
   eurekaserver:
     build:
-      context: /eureka-service
+      context: ./eureka-service
       dockerfile: Dockerfile
     container_name: eurekaserver
     ports:
@@ -133,22 +161,25 @@ services:
       - blog-network
 
   kafka:
-    image: 'bitnami/kafka:3.8.1'
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka
     ports:
       - '9094:9094'
     environment:
-      KAFKA_CFG_NODE_ID: 0
-      KAFKA_CFG_CONTROLLER_BROKER_ID: 0
-      KAFKA_CFG_PROCESS_ROLES: controller,broker
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - blog-network
     healthcheck:
-      test: kafka-topics.sh --list --bootstrap-server kafka:9092 || exit 1
+      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -174,6 +205,7 @@ volumes:
   sonarqube_temp:
   sonarqube_config:
   elasticsearch-data-volume:
+  postgres-data:
 
 networks:
   blog-network:
